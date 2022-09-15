@@ -1,4 +1,4 @@
-﻿using BepInEx;
+using BepInEx;
 using System.Text.RegularExpressions;
 using HarmonyLib;
 using UnityEngine;
@@ -32,13 +32,17 @@ namespace nimbatus_tag_equations
 	{
 		public static void nis(ref DronePart o)
 		{
+			string newKey;
 			// need to read it as a sensor part to get the output key
 			SensorPart a = o as SensorPart;
-			KeyBinding outKey = Traverse.Create(a).Field("_outputBinding").GetValue() as KeyBinding;
-			string newKey = pee(outKey, o);
-			outKey.SetKey(newKey);
-			
-			// the rest is for input keys
+			if (a != null)
+			{
+				KeyBinding outKey = Traverse.Create(a).Field("_outputBinding").GetValue() as KeyBinding;
+				newKey = pee(outKey, o);
+				outKey.SetKey(newKey);
+			}
+
+		// the rest is for input keys
 			BindableDronePart E = o as BindableDronePart;
 			List<KeyBinding> d8k = Traverse.Create(E).Field("KeyBindings").GetValue() as List<KeyBinding>;
 			foreach (KeyBinding key in d8k)
@@ -86,6 +90,12 @@ namespace nimbatus_tag_equations
 				//alternative way to do this with dataTable
 				//DataTable dt = new DataTable();
 				//var ans = dt.Compute(tmp2, "");
+				// does same float shit with this
+				
+				if (ans.ToString().Contains(".00000") || ans.ToString().Contains(".99999")) // fixes float rounding shit
+				{
+					ans = Mathf.RoundToInt(float.Parse(ans.ToString()));
+				}
 
 				//applies answers
 				tmp = tmp.Replace(equations[count].Value, ans.ToString());
